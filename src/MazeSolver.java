@@ -10,30 +10,28 @@ import java.awt.Point;
  *
  * @author maxno
  */
-public class MazeSolver {
+class MazeSolver {
     
-    Room r;
-    MyStack s;
+    private Room r;
+    private MyStack<Byte> s;
     boolean done = false;
-    boolean firstStep = true;
-    boolean backTracking = false;
-    int deadEnds = 0;
-    Point head;
-    Point tail;
+    private boolean firstStep = true;
+    private boolean backTracking = false;
+    private int deadEnds = 0;
+    private Point head;
+    private Point tail;
     
     private double turnsPerCycle = 1;
-    private double incrementer = 1000000;
     private double timer = 0;
     
-    public MazeSolver(Room r){
+    MazeSolver(Room r){
         this.r = r;
-        s = new MyStack();
+        s = new MyStack<>();
         head = new Point(0,0);
         tail = head;
     }
     
-    public void step(){
-        //System.out.println("head is: "+head);
+    private void step(){
         if(firstStep){
             firstStep = false;
             r.cells[0][0].point = true;
@@ -54,7 +52,7 @@ public class MazeSolver {
                 else if(!r.cells[exit.y][exit.x].sides[3] && exit.y+1 >= r.cells.length)
                     r.cells[exit.y][exit.x].paths[3] = true;
                 System.out.println("FREEDOM! after "+s.length+" choices made and "+deadEnds+" dead Ends!");
-                System.out.print("Soltion is: ");
+                System.out.print("Solution is: ");
                 int[] x = new int[s.length];
                 for(int i = 1;i<=x.length;i++)
                     x[x.length - i] = (int)s.pop();
@@ -63,7 +61,7 @@ public class MazeSolver {
                 System.out.println();
                 done = true;
             }
-            //backtracking !
+            //Start backtracking !
             else if(choices.length == 0){
                 backTracking = true;
                 deadEnds++;
@@ -74,11 +72,11 @@ public class MazeSolver {
                 head = choices[0];
                 r.takeStep(tail, head,true);
                 if(choices.length > 1){
-                    s.push(0);
+                    s.push((byte)0);
                 }
             }
         }
-        //Bactracking
+        //Backtracking routine
         else{
             r.backTrack(head);
             head = r.getTail(head);
@@ -92,15 +90,16 @@ public class MazeSolver {
                     tail = head;
                     head = choices[choice];
                     r.takeStep(tail, head,true);
-                    s.push(choice);
+                    s.push((byte)choice);
                 }
             }
         }
     }
     
-    public void GameUpdate(double delta){
+    void GameUpdate(double delta){
         if(!done){
-        if(timer < incrementer)
+            double incrementer = 1000000;
+            if(timer < incrementer)
             timer += delta;
         else{
             timer = 0;

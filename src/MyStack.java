@@ -8,19 +8,19 @@
  *
  * @author maxno
  */
-public class MyStack {
-    
-    Node top;
+class MyStack<T> {
+
+    private Node<T> top;
     int length = 0;
-    
-    public void push(Object data){
-        top = new Node(top,data);
+
+    void push(T data){
+        top = new Node<>(top,data);
         length++;
     }
     
-    public Object pop(){
+    T pop(){
         if(top != null){
-            Node t = top;
+            Node<T> t = top;
             top = top.previousNode;
             length--;
             return t.data;
@@ -28,18 +28,19 @@ public class MyStack {
         return null;
     }
     
-    public Object peek(){
-        if(top != null)
+    T peek(){
+        if(top != null) {
             return top.data;
+        }
         return null;
     }
 }
 
-class Node{
-    Object data;
+class Node<T>{
+    T data;
     Node previousNode;
     
-    public Node(Node previousNode,Object data){
+    Node(Node previousNode, T data){
         this.previousNode = previousNode;
         this.data = data;
     }

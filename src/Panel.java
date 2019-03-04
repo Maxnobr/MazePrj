@@ -17,7 +17,6 @@ import javax.swing.JPanel;
  */
 public class Panel extends JPanel implements Runnable{
 
-    int frames = 0;
     private boolean running = false;
     private boolean isPaused = false;
     private Thread loop;
@@ -31,13 +30,13 @@ public class Panel extends JPanel implements Runnable{
     Room r;
     MazeMaker mm;
     MazeSolver ms;
-    MyStack maps;
+    MyStack<String[]> maps;
     String fileName = "src\\maps.txt";
     
     double timer = 0;
     double pause = 10000000;
 
-    public void start(){   
+    void start(){
         readMaps();
         restart();
         if(!running && loop == null){
@@ -47,8 +46,8 @@ public class Panel extends JPanel implements Runnable{
         }
     }
     
-    public void readMaps(){
-        maps = new MyStack();
+    private void readMaps(){
+        maps = new MyStack<>();
         try{
             int counter = 0;
             int lineW = 0;
@@ -77,9 +76,9 @@ public class Panel extends JPanel implements Runnable{
         }
     }
     
-    public void restart(){
+    private void restart(){
         if(maps != null && maps.peek() != null)
-            r = new Room((String[])maps.pop());
+            r = new Room(maps.pop());
         else{
             r = new Room();
             mm = new MazeMaker(r);
@@ -118,7 +117,7 @@ public class Panel extends JPanel implements Runnable{
             r.paint(g,this.getBounds());
     }
     
-    public void GameUpdate(double delta){
+    private void GameUpdate(double delta){
         if(mm != null && !mm.done)
             mm.GameUpdate(delta);
         else if(ms != null)

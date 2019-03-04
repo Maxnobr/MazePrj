@@ -14,19 +14,19 @@ import java.util.ArrayList;
  *
  * @author maxno
  */
-public class Room {
-    
-    public char[][] map;
-    public Cell[][] cells;
-    private int minWidth = 3;
-    private int maxWidth = 100;
-    private int minHeight = 3;
-    private int maxHeight = 100;
-    
-    public Room(){
-        
-        int width  = (int)(Math.random()*maxWidth)+minWidth;
-        int height = (int)(Math.random()*maxHeight)+minHeight;
+class Room {
+
+    Cell[][] cells;
+
+    Room(){
+
+        int minWidth = 3;
+        int maxWidth = 100;
+        int width  = (int)(Math.random()* maxWidth)+ minWidth;
+
+        int minHeight = 3;
+        int maxHeight = 100;
+        int height = (int)(Math.random()* maxHeight)+ minHeight;
         
         cells = new Cell[height][width];
         for(int x = 0;x<height;x++)
@@ -34,12 +34,12 @@ public class Room {
                 cells[x][y] = new Cell();
     }
     
-    public Room(String[] lines){
+    Room(String[] lines){
         String[] firstLine = lines[0].split(" ");
         int height = Integer.parseInt(firstLine[0]);
         int width = Integer.parseInt(firstLine[1]);
 
-        map = new char[height][width];
+        char[][] map = new char[height][width];
         cells = new Cell[height-2][width-2];
 
         for(int i = 1;i<lines.length;i++){
@@ -85,7 +85,7 @@ public class Room {
         cells[0][0].sides[0] = false;
     }
     
-    public Point carveCell(Point eFrom,Point from,Point to){
+    void carveCell(Point eFrom, Point from, Point to){
          
         cells[from.y][from.x].isSetUp = true;
         cells[from.y][from.x].sidesUp();
@@ -98,10 +98,9 @@ public class Room {
             cells[from.y][from.x].sides[1] = false;
         if(eFrom.y > from.y || to.y > from.y)
             cells[from.y][from.x].sides[3] = false;
-        return to;
     }
     
-    public void carveOut(Point from, Point to){
+    void carveOut(Point from, Point to){
         
         cells[to.y][to.x].isSetUp = true;
         cells[to.y][to.x].sidesUp();
@@ -116,31 +115,22 @@ public class Room {
             cells[to.y][to.x].sides[0] = false;
     }
     
-    public Point getNeighbour(Point p,boolean isSetUp){
-        ArrayList<Point> neighbors = new ArrayList();
-        if(p.x+1< cells[0].length && !(cells[p.y][p.x+1].isSetUp^isSetUp))
-            neighbors.add(new Point(p.x+1,p.y));
-        if(p.x-1>= 0 && !(cells[p.y][p.x-1].isSetUp^isSetUp))
-            neighbors.add(new Point(p.x-1,p.y));
-        if(p.y+1< cells.length && !(cells[p.y+1][p.x].isSetUp^isSetUp))
-            neighbors.add(new Point(p.x,p.y+1));
-        if(p.y-1>= 0 && !(cells[p.y-1][p.x].isSetUp^isSetUp))
-            neighbors.add(new Point(p.x,p.y-1));
-        if(!neighbors.isEmpty()){
-            return neighbors.get((int)(Math.random()*neighbors.size()));
-        }
-        return null;
+    Point getNeighbour(Point p, boolean isSetUp){
+        Point[] neighbors = getAllNeighbours(p,isSetUp);
+        if(neighbors != null)
+        return neighbors[(int)(Math.random()* neighbors.length)];
+        else return null;
     }
     
-    public Point[] getAllNeighbours(Point p,boolean isSetUp){
-        ArrayList<Point> neighbors = new ArrayList();
-        if(p.x+1< cells[0].length && !(cells[p.y][p.x+1].isSetUp^isSetUp))
+    private Point[] getAllNeighbours(Point p, boolean isSetUp){
+        ArrayList<Point> neighbors = new ArrayList<>();
+        if(p.x+1< cells[0].length && (cells[p.y][p.x+1].isSetUp == isSetUp))
             neighbors.add(new Point(p.x+1,p.y));
-        if(p.y+1< cells.length && !(cells[p.y+1][p.x].isSetUp^isSetUp))
+        if(p.y+1< cells.length && (cells[p.y+1][p.x].isSetUp == isSetUp))
             neighbors.add(new Point(p.x,p.y+1));
-        if(p.x-1>= 0 && !(cells[p.y][p.x-1].isSetUp^isSetUp))
+        if(p.x-1>= 0 && (cells[p.y][p.x-1].isSetUp == isSetUp))
             neighbors.add(new Point(p.x-1,p.y));
-        if(p.y-1>= 0 && !(cells[p.y-1][p.x].isSetUp^isSetUp))
+        if(p.y-1>= 0 && (cells[p.y-1][p.x].isSetUp == isSetUp))
             neighbors.add(new Point(p.x,p.y-1));
         if(!neighbors.isEmpty()){
             Point[] result = new Point[neighbors.size()];
@@ -151,7 +141,7 @@ public class Room {
         return null;
     }
     
-    public boolean canStep(Point from,Point to){        
+    private boolean canStep(Point from,Point to){
         return to.y >= 0 && to.x >= 0 && to.y < cells.length && to.x < cells[0].length &&
                 ( (from.x > to.x && !cells[from.y][from.x].sides[0])
                 ||(from.y > to.y && !cells[from.y][from.x].sides[1])
@@ -159,10 +149,10 @@ public class Room {
                 ||(from.y < to.y && !cells[from.y][from.x].sides[3]));
     }
     
-    public Point[] allStepChoices(Point tail,Point head){
+    Point[] allStepChoices(Point tail,Point head){
         
         Point[] neighbours = getAllNeighbours(head,true);
-        ArrayList<Point> choices = new ArrayList();
+        ArrayList<Point> choices = new ArrayList<>();
         for(Point p: neighbours){
             if((p.x != tail.x || p.y != tail.y) && canStep(head,p)){
                 choices.add(p);
@@ -194,15 +184,15 @@ public class Room {
     private int vectorHelper(Point tail,Point head,Point choice){
         return (head.x-tail.x)*(choice.y-head.y)-(head.y-tail.y)*(choice.x-head.x);
     }
-    
-    public Point getExit(Point[] choices){
+
+    Point getExit(Point[] choices){
         for(Point p: choices)
             if(cells[p.y][p.x].isExit)
                 return p;
         return null;
     }
-    
-    public void takeStep(Point from,Point to,boolean forward){
+
+    void takeStep(Point from,Point to,boolean forward){
         if(canStep(from,to)){
             int f = 0;
             int t = 0;
@@ -215,12 +205,10 @@ public class Room {
                 t = 1;
             }
             else if(from.x > to.x){
-                f = 0;
                 t = 2;
             }
             else if(from.x < to.x){
                 f = 2;
-                t = 0;
             }
             
             cells[from.y][from.x].paths[f] = forward;
@@ -231,13 +219,13 @@ public class Room {
             cells[to.y][to.x].point = forward;
         }
     }
-    
-    public void backTrack(Point head){
+
+    void backTrack(Point head){
         Point tail = getTail(head);
         takeStep(head,tail,false);
     }
-    
-    public Point getTail(Point head){
+
+    Point getTail(Point head){
         Point[] steps = allStepChoices(head,head);
         Point tail = head;
         for(Point p:steps)
@@ -245,19 +233,18 @@ public class Room {
                 tail = p;
         return tail;
     }
-    
-    public void paint(Graphics g,Rectangle screen){
+
+    void paint(Graphics g, Rectangle screen){
         g.setColor(Color.lightGray);
         g.fillRect(screen.x, screen.y, screen.width, screen.height);
         
-        int cellSize = Math.min(screen.width/cells[0].length,screen.height/cells.length);        
-        Rectangle rec = screen;
-        rec.x += (screen.width-cellSize*cells[0].length)/2;
-        rec.y += (screen.height-cellSize*cells.length)/2;
-        rec.width = cellSize*cells[0].length;
-        rec.height = cellSize*cells.length;
+        int cellSize = Math.min(screen.width/cells[0].length,screen.height/cells.length);
+        screen.x += (screen.width-cellSize*cells[0].length)/2;
+        screen.y += (screen.height-cellSize*cells.length)/2;
+        screen.width = cellSize*cells[0].length;
+        screen.height = cellSize*cells.length;
         for(int y = 0;y<cells.length;y++)
             for(int x = 0;x<cells[y].length;x++)
-                cells[y][x].paint(g, new Rectangle(rec.x+x*cellSize,rec.y+y*cellSize,cellSize,cellSize));
+                cells[y][x].paint(g, new Rectangle(screen.x+x*cellSize, screen.y+y*cellSize,cellSize,cellSize));
     }
 }

@@ -69,7 +69,6 @@ public class MazeMaker {
     }
     
     private void walk(){
-        //System.out.println("Hello Walk");
         if(!r.cells[head.y][head.x].isSetUp){
             Point worm = r.getNeighbour(head,false);
             //System.out.println("Walk: "+worm);

@@ -23,18 +23,10 @@ public class GordonSC2 extends JFrame {
         frame.getContentPane().add(pn);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        
-        //int width = (int)(screenSize.width/1.5);
-        //int heigth = (int)(screenSize.height/1.5);
-        int width = (int)(screenSize.width);
-        int heigth = (int)(screenSize.height);
-        frame.setBounds((screenSize.width-width)/2,(screenSize.height-heigth)/2,width, heigth);
-        pn.setBounds((screenSize.width-width)/2,(screenSize.height-heigth)/2,width, heigth);
-        
-        //frame.pack();
-        frame.requestFocus();
+        frame.setBounds(0,0,screenSize.width, screenSize.height);
+        pn.setBounds(frame.getBounds());
+
         frame.setVisible(true);
-        
         pn.start();
     }
 
